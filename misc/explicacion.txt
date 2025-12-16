@@ -1,0 +1,153 @@
+CLASE NODOLISTA - METODOS
+
+NodoLista() - Constructor por defecto: Inicializa un nodo vacío estableciendo los punteros anterior y siguiente a nullptr y crea una CadenaADN por defecto. Este constructor es llamado automáticamente cuando se crea un nuevo nodo en las operaciones de inserción de ListaCadenasADN.
+
+NodoLista(NodoLista ant, NodoLista sig, const CadenaADN& cad)** - Constructor parametrizado: Crea un nodo con los punteros anterior y siguiente específicos y una cadena ADN dada. Se utiliza cuando ListaCadenasADN inserta nodos y necesita establecer las conexiones entre nodos adyacentes.
+
+NodoLista(const NodoLista& otro) - Constructor de copia: Crea una copia superficial de un nodo existente, copiando los punteros anterior y siguiente y la cadena ADN. No crea nuevos nodos, solo copia referencias. Es llamado por el constructor de copia de ListaCadenasADN.
+
+~NodoLista() - Destructor: No libera memoria de nodos adyacentes, solo prepara el nodo para ser destruido. La liberación de memoria real la maneja ListaCadenasADN mediante delete.
+
+operator=(const NodoLista& otro) - Operador de asignación: Realiza una asignación superficial entre nodos, copiando los punteros y la cadena ADN. Incluye verificación de auto-asignación. Es llamado durante la asignación de ListaCadenasADN.
+
+getAnterior() - Getter del nodo anterior: Devuelve el puntero al nodo anterior en la lista. Es utilizado extensivamente por IteradorLista en rstep() y por ListaCadenasADN en operaciones de navegación hacia atrás.
+
+getSiguiente() - Getter del nodo siguiente: Devuelve el puntero al nodo siguiente en la lista. Es utilizado por IteradorLista en step() y por ListaCadenasADN en operaciones de navegación hacia adelante.
+
+getCadenaADN() - Getter de la cadena: Devuelve la CadenaADN almacenada en el nodo. Es llamado por ListaCadenasADN en getCadenaADN() cuando se accede al contenido de un nodo a través de un iterador.
+
+setAnterior(NodoLista ant)* - Setter del nodo anterior: Establece el puntero al nodo anterior. Es utilizado por ListaCadenasADN durante inserciones y borrados para mantener la integridad de los enlaces dobles.
+
+setSiguiente(NodoLista sig)* - Setter del nodo siguiente: Establece el puntero al nodo siguiente. Es utilizado por ListaCadenasADN durante inserciones y borrados para mantener la coherencia de la lista.
+
+setCadenaADN(const CadenaADN& cad) - Setter de la cadena: Reemplaza la CadenaADN almacenada en el nodo. Es llamado por ListaCadenasADN en asignar() cuando se modifica el contenido de un nodo existente.
+
+CLASE ITERADORLISTA - METODOS
+
+IteradorLista() - Constructor por defecto: Inicializa el iterador con el puntero pt a nullptr, representando un iterador no válido o al final de la lista. Es llamado por los métodos begin(), end(), rbegin(), rend() de ListaCadenasADN.
+
+IteradorLista(const IteradorLista& other) - Constructor de copia: Crea una copia del iterador copiando el puntero pt. Permite tener múltiples iteradores apuntando a la misma posición en la lista.
+
+~IteradorLista() - Destructor: Establece el puntero pt a nullptr pero no libera memoria del nodo. Solo limpia la referencia del iterador.
+
+operator=(const IteradorLista& other) - Operador de asignación: Copia el puntero pt de otro iterador, permitiendo reassignar iteradores. Incluye verificación de auto-asignación.
+
+step() - Avance forward: Mueve el iterador al siguiente nodo en la lista llamando a getSiguiente() del nodo actual. Si pt es nullptr, no hace nada. Si estaba en el último nodo, pasa a nullptr (end). Es utilizado en bucles forward con begin() y end().
+
+rstep() - Avance backward: Mueve el iterador al nodo anterior en la lista llamando a getAnterior() del nodo actual. Si pt es nullptr, no hace nada. Si estaba en el primer nodo, pasa a nullptr (rend). Es utilizado en bucles inversos con rbegin() y rend().
+
+operator==(const IteradorLista& other) - Comparación de igualdad: Compara si dos iteradores apuntan al mismo nodo verificando la igualdad de los punteros pt. Es esencial para las condiciones de parada en bucles.
+
+operator!=(const IteradorLista& other) - Comparación de desigualdad: Compara si dos iteradores apuntan a nodos diferentes verificando la desigualdad de los punteros pt. Se usa típicamente en condiciones de continuidad de bucles.
+
+CLASE LISTACADENASADN - METODOS
+
+ListaCadenasADN() - Constructor por defecto: Crea una lista vacía inicializando head y tail a nullptr y numElementos a 0. Establece el estado inicial de una lista sin elementos.
+
+ListaCadenasADN(const ListaCadenasADN& other) - Constructor de copia: Crea una copia profunda de otra lista. Recorre la lista original con un puntero temporal y llama a insertarFinal() para cada elemento, creando nuevos nodos independientes.
+
+operator=(const ListaCadenasADN& other) - Operador de asignación: Realiza una asignación profunda entre listas. Primero limpia la lista actual con borrarPrimera() en bucle, luego recorre la lista fuente insertando cada elemento con insertarFinal().
+
+~ListaCadenasADN() - Destructor: Libera toda la memoria de la lista llamando a borrarPrimera() repetidamente hasta que la lista esté vacía. Garantiza que no hay fugas de memoria.
+
+begin() - Iterador al inicio: Devuelve un IteradorLista que apunta al primer nodo (head). Si la lista está vacía, head es nullptr y el iterador representa end(). Se usa para iniciar recorridos forward.
+
+end() - Iterador después del final: Siempre devuelve un IteradorLista con pt = nullptr, representando la posición después del último elemento. Sirve como condición de parada en bucles forward.
+
+rbegin() - Iterador al final: Devuelve un IteradorLista que apunta al último nodo (tail). Si la lista está vacía, tail es nullptr. Se usa para iniciar recorridos backward.
+
+rend() - Iterador antes del inicio: Siempre devuelve un IteradorLista con pt = nullptr, representando la posición antes del primer elemento. Sirve como condición de parada en bucles backward.
+
+getCadenaADN(IteradorLista it) - Acceso por iterador: Devuelve la CadenaADN del nodo apuntado por el iterador. Si el iterador no es válido (pt = nullptr), devuelve una CadenaADN por defecto.
+
+esVacia() - Verificación de vacío: Comprueba si la lista está vacía verificando si head es nullptr. Devuelve true si no hay elementos, false en caso contrario.
+
+insertarInicio(const CadenaADN& cadena) - Inserción al principio: Crea un nuevo nodo con new NodoLista y lo coloca al inicio de la lista. Actualiza head y los enlaces del antiguo primer nodo. Incrementa numElementos.
+
+insertarFinal(const CadenaADN& cadena) - Inserción al final: Crea un nuevo nodo con new NodoLista y lo coloca al final de la lista. Actualiza tail y los enlaces del antiguo último nodo. Incrementa numElementos.
+
+insertar(IteradorLista it, const CadenaADN& cadena) - Inserción en posición: Inserta una cadena antes de la posición del iterador. Si el iterador apunta al primer elemento, llama a insertarInicio(). En otros casos, crea un nuevo nodo y ajusta los enlaces de los nodos adyacentes.
+
+asignar(IteradorLista it, const CadenaADN& cadena) - Modificación en posición: Reemplaza la CadenaADN del nodo apuntado por el iterador llamando a setCadenaADN() del nodo. Devuelve false si el iterador no es válido.
+
+borrarPrimera() - Borrado del inicio: Elimina el primer nodo de la lista. Actualiza head y el enlace anterior del nuevo primer nodo. Si era el único nodo, establece tail a nullptr. Libera memoria con delete.
+
+borrarUltima() - Borrado del final: Elimina el último nodo de la lista. Actualiza tail y el enlace siguiente del nuevo último nodo. Si era el único nodo, establece head a nullptr. Libera memoria con delete.
+
+borrar(IteradorLista& it) - Borrado por iterador: Elimina el nodo apuntado por el iterador. Maneja tres casos: primer nodo (usa borrarPrimera), último nodo (usa borrarUltima), o nodo intermedio (ajusta enlaces de nodos vecinos). Establece it.pt a nullptr después del borrado.
+
+longitud() - Consulta de tamaño: Devuelve el número de elementos en la lista almacenado en numElementos. Es más eficiente que recorrer la lista contando nodos.
+
+contar(const CadenaADN& cadena) - Conteo de ocurrencias: Recorre toda la lista con un puntero temporal y cuenta cuántas cadenas tienen la misma secuencia que la cadena parámetro. Usa getSecuencia() para comparar solo secuencias, ignorando descripciones.
+
+concatenar(const ListaCadenasADN& otra) - Concatenación de listas: Crea una nueva lista y primero inserta todos los elementos de la lista actual, luego todos los elementos de la lista parámetro. Usa insertarFinal() para mantener el orden.
+
+diferencia(const ListaCadenasADN& otra) - Diferencia entre listas: Crea una nueva lista que contiene solo los elementos de la lista actual que no están en la lista parámetro. Para cada elemento, recorre la segunda lista buscando coincidencias por secuencia.
+
+concatenar() - Concatenación de secuencias: Crea una sola CadenaADN cuya secuencia es la concatenación de todas las secuencias de la lista en orden. Si la lista está vacía, devuelve una CadenaADN por defecto.
+
+aCadena() - Conversión a string: Convierte toda la lista a un string con formato "descripcion:secuencia" por línea. Usa stringstream para construir el resultado y añade saltos de línea entre elementos pero no después del último.
+
+CLASE CADENAADN - METODOS
+
+validador(const string &isec, const string &idesc) - Función de validación: Comprueba que una secuencia y descripción sean válidas. Verifica que la secuencia tenga al menos 3 caracteres, que su longitud sea múltiplo de 3, que todos los caracteres sean A, T, C o G, y que la descripción no contenga saltos de línea. Devuelve true si pasa todas las validaciones, false en caso contrario. Es llamada por los constructores y setters antes de asignar valores.
+
+contador(const string &serie) - Contador de subcadenas: Recorre toda la secuencia y cuenta cuántas veces aparece la subcadena especificada. Usa substr() para extraer porciones de la secuencia y las compara con la serie buscada. Devuelve el número total de apariciones. Es utilizado por cuentaA(), cuentaT(), cuentaC(), cuentaG() y contarCodon().
+
+CadenaADN() - Constructor por defecto: Inicializa la secuencia con "ATG" y la descripción como cadena vacía. Crea una cadena ADN básica válida sin necesidad de validación. Es llamado cuando se crea una cadena sin parámetros o cuando ListaCadenasADN necesita devolver una cadena por defecto.
+
+CadenaADN(const string &isec, const string &idesc) - Constructor parametrizado: Primero establece valores por defecto, luego llama a validador() para verificar los parámetros. Si la validación es exitosa, asigna la secuencia y descripción proporcionadas; si no, mantiene los valores por defecto. Garantiza que solo se almacenen cadenas válidas.
+
+CadenaADN(const CadenaADN &molecula) - Constructor de copia: Similar al constructor parametrizado, pero toma los valores de otra CadenaADN. Usa validador() para verificar que la cadena a copiar sea válida antes de realizar la copia. Crea una réplica independiente de la cadena original.
+
+~CadenaADN() - Destructor: No realiza ninguna operación específica ya que los strings se destruyen automáticamente. Está presente por completitud pero no maneja liberación de recursos especiales.
+
+operator=(const CadenaADN &molecula) - Operador de asignación: Verifica con validador() que la cadena fuente sea válida antes de realizar la asignación. Si es válida, copia la secuencia y descripción; si no, mantiene los valores actuales. Devuelve *this para permitir asignaciones encadenadas.
+
+operator==(const CadenaADN &molecula) - Operador de igualdad: Compara tanto la secuencia como la descripción de dos cadenas ADN. Devuelve true solo si ambos campos son idénticos. Se utiliza en comparaciones directas entre objetos CadenaADN.
+
+operator!=(const CadenaADN &molecula) - Operador de desigualdad: Niega el resultado de operator==, devolviendo true si las cadenas son diferentes en secuencia o descripción. Complementa al operador de igualdad.
+
+getSecuencia() - Getter de secuencia: Devuelve la secuencia de nucleótidos almacenada como string. Proporciona acceso de solo lectura al contenido genético de la cadena.
+
+getDescripcion() - Getter de descripción: Devuelve la descripción textual asociada a la secuencia. Permite acceder a la información descriptiva sin modificar el objeto.
+
+getLongitud() - Getter de longitud: Devuelve la longitud de la secuencia llamando a length() del string. Proporciona información sobre el tamaño del material genético.
+
+setSecuencia(const string &isec) - Setter de secuencia: Utiliza validador() para verificar la nueva secuencia antes de asignarla. Si la validación falla, mantiene la secuencia actual. La descripción se pasa como vacía durante la validación ya que solo se modifica la secuencia.
+
+setDescripcion(const string &idesc) - Setter de descripción: Valida la nueva descripción usando la secuencia actual "ATG" como referencia. Esto asegura que la descripción cumple con los requisitos incluso si la secuencia no ha cambiado.
+
+cuentaA() - Contador de adeninas: Llama a contador("A") para contar todas las apariciones del nucleótido A en la secuencia. Devuelve el número total de adeninas encontradas.
+
+cuentaT() - Contador de timinas: Utiliza contador("T") para contar las timinas en la secuencia. Proporciona el conteo específico de este nucleótido.
+
+cuentaC() - Contador de citosinas: Emplea contador("C") para determinar cuántas citosinas hay en la cadena genética.
+
+cuentaG() - Contador de guaninas: Usa contador("G") para calcular el número de guaninas presentes en la secuencia.
+
+cumpleChargaff() - Verificador de reglas de Chargaff: Calcula los conteos de todos los nucleótidos y verifica tres condiciones: que A igual a T, que C igual a G, y que la proporción (A+G)/(T+C) sea 1.0. Devuelve true si se cumplen todas las reglas de complementariedad.
+
+proporcionGC() - Cálculo de proporción GC: Suma los conteos de G y C y divide por la longitud total de la secuencia. Devuelve un double entre 0.0 y 1.0 representando el porcentaje de bases G y C en la secuencia.
+
+contarCodon(const string &icodon) - Contador de codones: Verifica que el parámetro tenga exactamente 3 caracteres, luego llama a contador() para buscar esa secuencia específica. Si no tiene 3 caracteres, devuelve 0. Especializado en buscar tripletes genéticos.
+
+buscarSubsecuencia(const string &serie) - Buscador de primera aparición: Recorre la secuencia desde el inicio buscando la subcadena especificada. Devuelve la posición del primer carácter donde se encuentra, o -1 si no se encuentra. Usa substr() para comparar porciones de la secuencia.
+
+posicionUltimaAparicion(const string &serie) - Buscador de última aparición: Similar a buscarSubsecuencia() pero recorre toda la secuencia y recuerda la última posición donde encontró la subcadena. Devuelve la posición del último encuentro o -1 si no hay coincidencias.
+
+longitudMaximaConsecutiva(char nucleo) - Calculador de secuencia consecutiva: Recorre la secuencia contando cuántas veces aparece el nucleótido especificado de forma consecutiva. Lleva un contador temporal y un máximo, actualizando el máximo cuando encuentra un carácter diferente. Devuelve la longitud de la secuencia consecutiva más larga.
+
+longitudMaximaConsecutivaCualquiera() - Máximo consecutivo global: Calcula la longitud máxima consecutiva para cada nucleótido (A, T, C, G) llamando a longitudMaximaConsecutiva() para cada uno, luego devuelve el mayor de los cuatro valores. Proporciona la secuencia repetida más larga sin importar el nucleótido.
+
+mutar(int pos, char nucleo) - Función de mutación: Verifica que la posición esté dentro del rango de la secuencia y que el nuevo nucleótido sea A, T, C o G. Si ambas condiciones se cumplen, reemplaza el carácter en esa posición y devuelve true; en caso contrario, devuelve false.
+
+contarMutaciones(const CadenaADN &molecula) - Comparador de mutaciones: Primero verifica que ambas secuencias tengan la misma longitud. Luego recorre posición por posición contando cuántos caracteres son diferentes. Devuelve el número de diferencias, o -1 si las longitudes no coinciden.
+
+esSecuenciaComplementaria(const CadenaADN& molecula) - Verificador de complementariedad: Comprueba que ambas secuencias tengan la misma longitud, luego verifica para cada posición que los nucleótidos sean complementarios (A-T, T-A, C-G, G-C). Devuelve true solo si todas las posiciones son complementarias.
+
+invertir() - Función de inversión complementaria: Recorre cada carácter de la secuencia y lo reemplaza por su complementario usando un switch-case. A con T, T con A, C con G, G con C. Modifica la secuencia actual transformándola en su complementaria invertida.
+
+guardarEnFichero(const string &path) - Guardado en archivo: Abre el archivo especificado, escribe la descripción en la primera línea y la secuencia en la segunda línea, luego cierra el archivo. Devuelve true si tuvo éxito, false si no pudo abrir el archivo.
+
+cargarDesdeFichero(const string &path) - Carga desde archivo: Abre el archivo, lee la primera línea como descripción y la segunda como secuencia, luego cierra el archivo. Asigna estos valores directamente sin validación. Devuelve true si la carga fue exitosa, false si hubo error al abrir el archivo.
