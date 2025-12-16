@@ -4,17 +4,19 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <vector> // Necesario para el nuevo método obtenerCodones()
 using namespace std;
 
 class CadenaADN {
     private:
     string secuencia = "ATG";
     string descripcion = "";
-    public:
+    
     // Auxiliares
     bool validador(const string &, const string &) const;
     int contador(const string &) const;
 
+    public:
     //Constructor por defecto
     CadenaADN();
     //Constructor sobrecargado
@@ -34,6 +36,7 @@ class CadenaADN {
     int getLongitud() const;
     void setSecuencia(const string &);
     void setDescripcion(const string &);
+    
     //Cuentas de nucleótidos
     int cuentaA() const;
     int cuentaT() const;
@@ -41,8 +44,14 @@ class CadenaADN {
     int cuentaG() const;
     bool cumpleChargaff() const;
     double proporcionGC() const;
+    
     //Búsqueda de codones
     int contarCodon(const string &) const;
+    
+    // NUEVO: Método para obtener todos los codones de la secuencia
+    // Necesario para los métodos O(1) de ListaCadenasADN
+    vector<string> obtenerCodones() const; // 
+
     //Búsqueda de subsecuencias
     int buscarSubsecuencia(const string &) const;
     int posicionUltimaAparicion(const string &) const;

@@ -1,115 +1,131 @@
 #include "CadenaADN.h"
 #include <string>
+#include <list>          // Para el contenedor principal (similar a lista enlazada)
+#include <map>           // Para listados ordenados y eficientes (listaCodones, etc.)
+#include <unordered_map> // Para frecuencias de tiempo constante
 
 using namespace std;
 
-class NodoLista{
-   private:
-    NodoLista* anterior;
-    NodoLista* siguiente;
-    CadenaADN cadenaADN;
+// Declaración forward de ListaCadenasADN
+class ListaCadenasADN;
 
-   public:
-    //Constructor por defecto
-    NodoLista();
-    //Constructor sobrecargado
-    NodoLista(NodoLista*, NodoLista*, const CadenaADN& );
-    //Constructor de copia
-    NodoLista(const NodoLista&);
-    //Operador de asignación
-    NodoLista& operator=(const NodoLista &);
-    //Destructor
-    ~NodoLista();
-    //Devuelve el puntero al nodo anterior de la lista
-    NodoLista* getAnterior() const;
-    //Devuelve el puntero al siguiente nodo de la lista
-    NodoLista* getSiguiente() const;
-    //Devuelve la cadena de ADN almacenada en el nodo
-    CadenaADN getCadenaADN() const;
-    //Modifica el puntero al nodo anterior de la lista
-    void setAnterior(NodoLista* );
-    //Modifica el puntero al siguiente nodo de la lista
-    void setSiguiente(NodoLista* );
-    //Modifica la cadena de ADN
-    void setCadenaADN(const CadenaADN& );
-};
-
+/**
+ * @brief Clase IteradorLista. Simula el iterador de STL para recorrer ListaCadenasADN.
+ * Se ha modificado para usar un iterador del contenedor STL elegido (std::list<CadenaADN>::iterator).
+ */
 class IteradorLista {
     friend class ListaCadenasADN;
 
    private:
-    NodoLista* pt;
+    // Atributo interno que guarda el iterador STL. Se asume que ListaCadenasADN usa std::list.
+    // Si se usara std::vector, este tipo cambiaría a std::vector<CadenaADN>::iterator.
+    list<CadenaADN>::iterator iter;
+    // Puntero al contenedor principal, necesario para métodos como rbegin/rend y step/rstep si es bidireccional.
+    // Lo simplificaremos asumiendo la estructura propuesta en el enunciado.
+    
+    // NOTA: Para simplificar, la implementación de step/rstep y begin/end/rbegin/rend
+    // debe usar las propiedades del iterador STL (que es bidireccional para list).
 
    public:
-    //Constructor por defecto: puntero a nullptr
+    // Constructor por defecto: inicializa el iterador a un estado "vacío" o por defecto.
     IteradorLista();
-    //Constructor de copia
+    // Constructor de copia
     IteradorLista(const IteradorLista&);
-    //Destructor: puntero a nullptr
+    // Destructor
     ~IteradorLista();
-    //Operador de asignación
+    // Operador de asignación
     IteradorLista& operator=(const IteradorLista&);
-    //Avanza una posición en la lista
+    // Avanza una posición en la lista (it.step())
     void step();
-    //Retrocede una posición en la lista
+    // Retrocede una posición en la lista (it.rstep())
     void rstep();
-    //Operador de comparación
+    // Operador de comparación
     bool operator==(const IteradorLista&) const;
-    //Operador de comparación
+    // Operador de comparación
     bool operator!=(const IteradorLista&) const;
+    // NUEVO: comprueba si el iterador ha sido creado con su constructor por defecto
+    bool esVacio() const;
 };
 
+
+/**
+ * @brief Clase ListaCadenasADN. Utiliza tipos de datos avanzados de STL
+ * para una implementación eficiente.
+ */
 class ListaCadenasADN{
 private:
-    NodoLista* head;
-    NodoLista* tail;
-    int numElementos;
+    // 1. Contenedor principal STL (Requisito: usar un tipo STL)
+    list<CadenaADN> data;
+    
+    // 2. Atributos auxiliares STL para O(1) en frecuenciaCodon/frecuenciaCadena (Requisito: múltiples atributos privados STL)
+
+    // Mapa para O(1) en frecuenciaCadena: (Secuencia_ADN, Frecuencia)
+    // Usamos unordered_map ya que la clave (secuencia) es un string y el orden no importa para la frecuencia.
+    unordered_map<string, int> frecuencia_secuencias;
+
+    // Mapa para O(1) en frecuenciaCodon: (Codón, Frecuencia)
+    unordered_map<string, int> frecuencia_codones;
+
+    // 3. Atributos auxiliares STL para listados rápidos O(1) (Requisito: tiempo independiente de la longitud)
+
+    // Set o Map para listaCodones(): (Codón, bool o int) - para almacenar codones sin duplicados y ordenados.
+    // Usamos map para mantener el orden alfabético automáticamente (std::map lo hace) y para que listaCodones() sea rápido.
+    map<string, bool> codones_unicos_ordenados;
+
+    // Map para listaCadenasConCodon(): (Codón, Set_de_Secuencias_Unicas_y_Ordenadas)
+    // Almacena qué cadenas contienen cada codón. Esto permite que listaCadenasConCodon() sea O(1) respecto a la longitud de 'data'.
+    map<string, map<string, bool>> cadenas_por_codon;
+
+    void actualizarEstructurasAlInsertar(const CadenaADN& cadena);
+    void actualizarEstructurasAlBorrar(const CadenaADN& cadena);
 
 public:
-    //Constructor por defecto: lista vacía
+    // Constructor por defecto: lista vacía
     ListaCadenasADN();
-    //Constructor de copia
+    // Constructor de copia
     ListaCadenasADN(const ListaCadenasADN&);
-    //Operador de asignación
+    // Operador de asignación
     ListaCadenasADN& operator=(const ListaCadenasADN &);
-    //Destructor
+    // Destructor
     ~ListaCadenasADN();
-    //Devuelve un iterador que apunta al primer elemento de la lista
-    IteradorLista begin() const;
-    //Devuelve un iterador que apunta después del último elemento de la lista: puntero a nullptr
-    IteradorLista end() const;
-    //Devuelve un iterador que apunta al último elemento de la lista
-    IteradorLista rbegin() const;
-    //Devuelve un iterador que apunta antes del primer elemento de la lista: puntero a nullptr
-    IteradorLista rend() const;
-    //Devuelve la cadena de ADN apuntada por el iterador
-    CadenaADN getCadenaADN(IteradorLista) const;
-    //Comprueba si la lista está vacía
-    bool esVacia() const;
-    //Inserta una cadena de ADN al principio de la lista
+    
+    // Métodos que devuelven iteradores (usando el iterador STL subyacente)
+    IteradorLista begin();
+    IteradorLista end();
+    IteradorLista rbegin();
+    IteradorLista rend();
+    
+    // Métodos básicos y de gestión (conservan la firma)
+    CadenaADN getCadenaADN(IteradorLista);
+    bool esVacia();
     void insertarInicio(const CadenaADN&);
-    //Inserta una cadena de ADN al final de la lista
     void insertarFinal(const CadenaADN&);
-    //Inserta una cadena de ADN justo antes de la posición apuntada por el iterador
     bool insertar( IteradorLista, const CadenaADN&);
-    //Asigna la cadena de ADN la posición apuntada por el iterador
+    // NUEVO: Inserta después de la posición apuntada por el iterador
+    bool insertarDespues (IteradorLista, const CadenaADN&);
     bool asignar(IteradorLista, const CadenaADN&);
-    //Borra la primera cadena de ADN de la lista
     bool borrarPrimera();
-    //Borra la última cadena de ADN de la lista
     bool borrarUltima();
-    //Borra la cadena de ADN a la que apunta el iterador
     bool borrar(IteradorLista &);
-    //Devuelve cuántos elementos hay en la lista
-    int longitud() const;
-    //Cuenta el número de apariciones de la cadena de ADN que se pasa como parámetro (según su operador ==)
-    int contar(const CadenaADN &) const;
-    //Devuelve una nueva lista con todos los elementos de la lista actual y, a continuación, todos los de la lista que se pasa como parámetro
-    ListaCadenasADN concatenar(const ListaCadenasADN &) const;
-    //Devuelve una nueva lista con todos los elementos de la lista actual que no están en la que se pasa como parámetro
-    ListaCadenasADN diferencia(const ListaCadenasADN &) const;
-    //Devuelve una cadena de ADN con la concatenación de todas las secuencias de la lista y la cadena vacía como descripción
-    CadenaADN concatenar() const;
-    //Devuelve una cadena de texto con el contenido completo de la lista
-    string aCadena() const;
+    int longitud();
+    int contar(const CadenaADN &);
+    ListaCadenasADN concatenar(ListaCadenasADN &);
+    ListaCadenasADN diferencia(ListaCadenasADN &);
+    CadenaADN concatenar();
+    string aCadena();
+    
+    /* MÉTODOS NUEVOS DE LA PRÁCTICA 3 */
+    
+    // Devuelve la frecuencia del codón pasado como parámetro (O(1))
+    int frecuenciaCodon (const string &);
+    // Devuelve la frecuencia de la secuencia de ADN pasada como parámetro (O(1))
+    int frecuenciaCadena (const CadenaADN&);
+    // Lista los codones en orden alfabético (Tiempo independiente de la longitud de la lista principal)
+    string listaCodones();
+    // Lista las cadenas en orden alfabético (Tiempo independiente de la longitud de la lista principal)
+    string listaCadenasADN();
+    // Lista las cadenas que contienen un codón determinado, sin repetidos (Tiempo independiente de la longitud de la lista principal)
+    string listaCadenasConCodon (const string& );
+    // Elimina las cadenas de ADN con la misma secuencia, dejando sólo la primera
+    void eliminaDuplicados();
 };
