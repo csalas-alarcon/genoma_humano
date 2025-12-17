@@ -1,0 +1,149 @@
+================================================================================
+GUÍA MAESTRA DE REFERENCIA - EXAMEN PRÁCTICA 3 (17/12/2025)
+================================================================================
+
+--------------------------------------------------------------------------------
+1. CLASE CADENAADN (La base genética) [cite: 10, 11]
+--------------------------------------------------------------------------------
+Representa una secuencia de nucleótidos ("A", "T", "C", "G") cuya longitud 
+debe ser siempre múltiplo de 3 y mayor o igual a 3[cite: 371, 372].
+
+MÉTODOS DE GESTIÓN BÁSICA:
+- CadenaADN(): Constructor por defecto. Crea "ATG" con descripción vacía[cite: 378, 379].
+- CadenaADN(string sec, string desc): Valida y crea la cadena. Si falla la 
+  validación, usa valores por defecto[cite: 381, 382].
+- getSecuencia() / getDescripcion(): Retornan los valores almacenados[cite: 392, 394].
+- setSecuencia(string s) / setDescripcion(string d): Modifican los valores tras 
+  validar que cumplen las reglas[cite: 397, 399].
+- getLongitud(): Retorna el tamaño de la secuencia (string::length)[cite: 396].
+
+MÉTODOS DE ANÁLISIS GENÉTICO:
+- cuentaA(), cuentaT(), cuentaC(), cuentaG(): Conteo individual de bases[cite: 401, 404].
+- cumpleChargaff(): Verifica leyes de complementariedad (A==T y C==G)[cite: 405].
+- proporcionGC(): Retorna (G+C) / Longitud Total como double[cite: 407, 408].
+- contarCodon(string c): Cuenta apariciones del triplete 'c' (3 letras)[cite: 409, 410].
+- buscarSubsecuencia(string s): Índice de la primera aparición o -1[cite: 411, 412].
+- posicionUltimaAparicion(string s): Índice de la última aparición o -1[cite: 413, 414].
+- longitudMaximaConsecutiva(char n): Racha más larga del mismo nucleótido[cite: 415, 416].
+- longitudMaximaConsecutivaCualquiera(): Máximo entre todas las rachas (A,T,C,G)[cite: 417].
+
+MÉTODOS DE MODIFICACIÓN Y FICHEROS:
+- mutar(int pos, char n): Cambia carácter en 'pos' por 'n' si es válido[cite: 419].
+- contarMutaciones(CadenaADN otra): Diferencias carácter a carácter[cite: 420].
+- esSecuenciaComplementaria(CadenaADN otra): Verifica encaje A-T y C-G[cite: 423].
+- invertir(): Invierte secuencia y aplica bases complementarias[cite: 424, 425].
+- obtenerCodones(): [NUEVO P3] Retorna vector<string> con tripletes sin solapar[cite: 13].
+- guardarEnFichero / cargarDesdeFichero: Operaciones con archivos .txt[cite: 426, 428].
+
+--------------------------------------------------------------------------------
+2. CLASE LISTACADENASADN (Implementación STL y Eficiencia) [cite: 6, 8]
+--------------------------------------------------------------------------------
+La lista es un 'std::list<CadenaADN>' y utiliza Mapas para eficiencia O(1)[cite: 205, 251].
+
+MÉTODOS DE ITERACIÓN:
+- begin() / end(): Iterador al primer elemento y al "pasado el último"[cite: 73, 77, 240, 243].
+- rbegin() / rend(): Iterador al último y al "antes del primero"[cite: 78, 82, 240, 243].
+- getCadenaADN(IteradorLista it): Retorna el objeto del nodo actual[cite: 83, 144, 344].
+
+MÉTODOS DE MODIFICACIÓN (Actualizan mapas de eficiencia siempre):
+- insertarInicio(c) / insertarFinal(c): Añaden cadenas a los extremos[cite: 90, 92, 348, 350].
+- insertar(it, c): Inserta justo ANTES de la posición del iterador[cite: 93, 352].
+- insertarDespues(it, c): [NUEVO P3] Inserta justo DESPUÉS del iterador[cite: 118, 162].
+- borrarPrimera() / borrarUltima(): Eliminan extremos[cite: 97, 99, 149, 356, 358].
+- borrar(it): Elimina elemento y pone el iterador en estado 'esVacio'[cite: 101, 147, 360].
+- asignar(it, c): Reemplaza el objeto en la posición de 'it'[cite: 95, 148, 355].
+
+MÉTODOS DE EFICIENCIA Y CONSULTA (Requisitos P3):
+- frecuenciaCodon(string c): Conteo total del triplete en toda la lista (O(1))[cite: 120, 172].
+- frecuenciaCadena(CadenaADN c): Conteo de secuencia exacta en la lista (O(1))[cite: 122, 172].
+- listaCodones(): Codones únicos presentes, ordenados y por línea[cite: 124, 173].
+- listaCadenasADN(): Secuencias únicas, ordenadas alfabéticamente[cite: 128, 185].
+- listaCadenasConCodon(string c): Secuencias que contienen 'c', ordenadas[cite: 130, 192].
+- eliminaDuplicados(): Mantiene solo la primera aparición de cada secuencia[cite: 132, 197].
+- longitud(): Retorna el número de elementos (data.size())[cite: 103, 362].
+- contar(c): Conteo lineal de apariciones (compara solo secuencias)[cite: 105, 137, 363].
+
+--------------------------------------------------------------------------------
+3. CLASE ITERADORLISTA
+--------------------------------------------------------------------------------
+- IteradorLista(): Constructor por defecto (it.esVacio() será true)[cite: 152, 221, 320].
+- step() / rstep(): Avanza o retrocede una posición[cite: 228, 230, 238].
+- operator== / operator!=: Comparación entre iteradores[cite: 232, 234].
+- esVacio(): [NUEVO P3] Comprueba si el iterador no apunta a nada[cite: 236, 246].
+
+================================================================================
+CHEST-SHEET DE SINTAXIS C++ Y STL
+================================================================================
+
+1. DECLARACIÓN DE CONTENEDORES Y OBJETOS:
+   - list<CadenaADN> miLista;        // Lista vacía.
+   - vector<string> misCodones;     // Vector vacío de strings.
+   - CadenaADN c1;                  // "ATG" por defecto.
+   - CadenaADN c2("ATGCAT", "Gen"); // Con parámetros.
+   - IteradorLista it;              // Iterador vacío (esVacio() == true).
+
+2. OPERACIONES CLAVE DE LISTAS (std::list):
+   - data.push_back(obj);           // Insertar al final.
+   - data.push_front(obj);          // Insertar al inicio.
+   - data.pop_front();              // Eliminar primero.
+   - data.size();                   // Cantidad de elementos.
+   - data.clear();                  // Vaciar lista.
+
+3. MANEJO DE MAPAS (Eficiencia P3):
+   - mapa[clave] = valor;           // Insertar/Actualizar.
+   - mapa.erase(clave);             // Eliminar entrada.
+   - if (mapa.count(k) > 0) ...     // Comprobar si existe sin insertar.
+   - Recorrido: for (auto const& par : mapa) { /* par.first=clave, par.second=val */ }
+
+4. BUCLES DE RECORRIDO (IteradorLista):
+   for (IteradorLista it = l.begin(); it != l.end(); it.step()) {
+       CadenaADN actual = l.getCadenaADN(it);
+   }
+
+================================================================================
+POSIBLES EJERCICIOS DE EXAMEN (RESUELTOS)
+================================================================================
+
+EJERCICIO 1: "Borrar cadenas que NO tengan un codón específico."
+void filtrarPorCodon(string objetivo) {
+    IteradorLista it = begin();
+    while (it != end()) {
+        if (getCadenaADN(it).contarCodon(objetivo) == 0) {
+            borrar(it); // borrar() invalida el iterador (lo pone en vacío)
+            it = begin(); // Reinicio necesario tras borrar
+        } else {
+            it.step();
+        }
+    }
+}
+
+EJERCICIO 2: "Devolver la descripción de la cadena más larga de la lista."
+string descripcionMasLarga() {
+    if (esVacia()) return "";
+    IteradorLista it = begin();
+    CadenaADN maxC = getCadenaADN(it);
+    for (it.step(); it != end(); it.step()) {
+        if (getCadenaADN(it).getLongitud() > maxC.getLongitud()) {
+            maxC = getCadenaADN(it);
+        }
+    }
+    return maxC.getDescripcion();
+}
+
+EJERCICIO 3: "Invertir todas las cadenas de la lista."
+void invertirTodaLaLista() {
+    for (IteradorLista it = begin(); it != end(); it.step()) {
+        CadenaADN c = getCadenaADN(it);
+        c.invertir();
+        asignar(it, c); // Necesario para guardar el cambio en la lista
+    }
+}
+
+EJERCICIO 4: "Intercambiar dos elementos mediante iteradores."
+void intercambiar(IteradorLista it1, IteradorLista it2) {
+    if (it1.esVacio() || it2.esVacio()) return;
+    CadenaADN aux = getCadenaADN(it1);
+    asignar(it1, getCadenaADN(it2));
+    asignar(it2, aux);
+}
+================================================================================
