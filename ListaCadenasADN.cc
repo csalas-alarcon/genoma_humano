@@ -38,18 +38,28 @@ ListaCadenasADN::~ListaCadenasADN() {}
 void ListaCadenasADN::actualizarEstructuras(const CadenaADN& cadena, int inc) {
     string seq = cadena.getSecuencia();
     frecSecuencias[seq] += inc;
-    if (frecSecuencias[seq] == 0) frecSecuencias.erase(seq);
+    if (frecSecuencias[seq] <= 0) frecSecuencias.erase(seq);
 
     vector<string> cods = cadena.obtenerCodones();
     for (const string& c : cods) {
         frecCodones[c] += inc;
+        
         if (inc > 0) {
             codonesUnicos[c] = true;
             mapaCodonSecuencias[c][seq] = true;
-        } else if (frecCodones[c] == 0) {
-            frecCodones.erase(c);
-            codonesUnicos.erase(c);
-            mapaCodonSecuencias.erase(c);
+        } else {
+            // Si estamos borrando (inc < 0)
+            if (frecCodones[c] <= 0) {
+                frecCodones.erase(c);
+                codonesUnicos.erase(c);
+                mapaCodonSecuencias.erase(c);
+            } else {
+                // Si el codón aún existe en otras cadenas, 
+                // pero queremos ver si esta secuencia específica ya no lo tiene
+                if (frecSecuencias[seq] <= 0) {
+                    mapaCodonSecuencias[c].erase(seq);
+                }
+            }
         }
     }
 }
