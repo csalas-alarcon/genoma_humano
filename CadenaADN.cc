@@ -1,6 +1,16 @@
 #include "CadenaADN.h"
 using namespace std;
 
+
+vector<string> CadenaADN::obtenerCodones() const {
+    vector<string> v;
+    for (size_t i = 0; i + 2 < secuencia.length(); i += 3) {
+        v.push_back(secuencia.substr(i, 3));
+    }
+    return v;
+}
+
+
 // =============================================
 // FUNCIONES AUXILIARES
 // =============================================

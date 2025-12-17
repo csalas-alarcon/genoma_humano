@@ -1,468 +1,140 @@
 #include "ListaCadenasADN.h"
 #include <sstream>
+#include <algorithm>
+#include <unordered_set>
 
-// =============================================
-// IMPLEMENTACIÓN DE NODOLISTA
-// =============================================
-
-// Constructor por defecto - nodo vacío
-NodoLista::NodoLista() {
-    anterior = nullptr;
-    siguiente = nullptr;
-    cadenaADN = CadenaADN();  // Cadena ADN por defecto
-}
-
-// Constructor con parámetros
-NodoLista::NodoLista(NodoLista* ant, NodoLista* sig, const CadenaADN& cad) {
-    anterior = ant;
-    siguiente = sig;
-    cadenaADN = cad;
-}
-
-// Constructor de copia
-NodoLista::NodoLista(const NodoLista& otro) {
-    anterior = otro.anterior;
-    siguiente = otro.siguiente;
-    cadenaADN = otro.cadenaADN;
-}
-
-// Operador de asignación
-NodoLista& NodoLista::operator=(const NodoLista& otro) {
-    if (this != &otro) {  // Evitar auto-asignación
-        anterior = otro.anterior;
-        siguiente = otro.siguiente;
-        cadenaADN = otro.cadenaADN;
-    }
-    return *this;
-}
-
-// Destructor
-NodoLista::~NodoLista() {
-    // No libera memoria - la lista se encarga de eso
-}
-
-// GETTERS
-NodoLista* NodoLista::getAnterior() const {
-    return anterior;
-}
-
-NodoLista* NodoLista::getSiguiente() const {
-    return siguiente;
-}
-
-CadenaADN NodoLista::getCadenaADN() const {
-    return cadenaADN;
-}
-
-// SETTERS
-void NodoLista::setAnterior(NodoLista* ant) {
-    anterior = ant;
-}
-
-void NodoLista::setSiguiente(NodoLista* sig) {
-    siguiente = sig;
-}
-
-void NodoLista::setCadenaADN(const CadenaADN& cad) {
-    cadenaADN = cad;
-}
-
-// =============================================
-// IMPLEMENTACIÓN DE ITERADORLISTA
-// =============================================
-
-// Constructor por defecto
-IteradorLista::IteradorLista() {
-    pt = nullptr;  // Apunta a nada inicialmente
-}
-
-// Constructor de copia
-IteradorLista::IteradorLista(const IteradorLista& other) {
-    pt = other.pt;  // Copia el puntero
-}
-
-// Destructor
-IteradorLista::~IteradorLista() {
-    pt = nullptr;  // Solo anula el puntero
-}
-
-// Operador de asignación
+IteradorLista::IteradorLista() : vacio(true) {}
+IteradorLista::IteradorLista(const IteradorLista& other) : iter(other.iter), vacio(other.vacio) {}
+IteradorLista::~IteradorLista() {}
 IteradorLista& IteradorLista::operator=(const IteradorLista& other) {
-    if (this != &other) {  // Evitar auto-asignación
-        pt = other.pt;
-    }
+    if (this != &other) { iter = other.iter; vacio = other.vacio; }
     return *this;
 }
-
-// Avanza al siguiente nodo
-void IteradorLista::step() {
-    if (pt != nullptr) {
-        pt = pt->getSiguiente();
-    }
-}
-
-// Retrocede al nodo anterior
-void IteradorLista::rstep() {
-    if (pt != nullptr) {
-        pt = pt->getAnterior();
-    }
-}
-
-// Operador de igualdad
+void IteradorLista::step() { if (!vacio) ++iter; }
+void IteradorLista::rstep() { if (!vacio) --iter; }
 bool IteradorLista::operator==(const IteradorLista& other) const {
-    return (pt == other.pt);  // Compara punteros
+    if (vacio && other.vacio) return true;
+    if (vacio || other.vacio) return false;
+    return iter == other.iter;
 }
+bool IteradorLista::operator!=(const IteradorLista& other) const { return !(*this == other); }
+bool IteradorLista::esVacio() const { return vacio; }
 
-// Operador de desigualdad
-bool IteradorLista::operator!=(const IteradorLista& other) const {
-    return (pt != other.pt);  // Compara punteros
-}
-
-// =============================================
-// IMPLEMENTACIÓN DE LISTACADENASADN
-// =============================================
-
-// Constructor por defecto - lista vacía
-ListaCadenasADN::ListaCadenasADN() {
-    head = nullptr;
-    tail = nullptr;
-    numElementos = 0;
-}
-
-// Constructor de copia
-ListaCadenasADN::ListaCadenasADN(const ListaCadenasADN& other) {
-    head = nullptr;
-    tail = nullptr;
-    numElementos = 0;
-    
-    // Copiar todos los elementos de la otra lista
-    NodoLista* actual = other.head;
-    while (actual != nullptr) {
-        insertarFinal(actual->getCadenaADN());
-        actual = actual->getSiguiente();
-    }
-}
-
-// Operador de asignación
+// --- ListaCadenasADN ---
+ListaCadenasADN::ListaCadenasADN() {}
+ListaCadenasADN::ListaCadenasADN(const ListaCadenasADN& other) { *this = other; }
 ListaCadenasADN& ListaCadenasADN::operator=(const ListaCadenasADN& other) {
-    if (this != &other) {  // Evitar auto-asignación
-        // Limpiar lista actual
-        while (head != nullptr) {
-            borrarPrimera();
-        }
-        
-        // Copiar todos los elementos de la otra lista
-        NodoLista* actual = other.head;
-        while (actual != nullptr) {
-            insertarFinal(actual->getCadenaADN());
-            actual = actual->getSiguiente();
-        }
+    if (this != &other) {
+        data = other.data;
+        frecSecuencias = other.frecSecuencias;
+        frecCodones = other.frecCodones;
+        codonesUnicos = other.codonesUnicos;
+        mapaCodonSecuencias = other.mapaCodonSecuencias;
     }
     return *this;
 }
+ListaCadenasADN::~ListaCadenasADN() {}
 
-// Destructor
-ListaCadenasADN::~ListaCadenasADN() {
-    // Liberar todos los nodos
-    while (head != nullptr) {
-        borrarPrimera();
-    }
-}
+void ListaCadenasADN::actualizarEstructuras(const CadenaADN& cadena, int inc) {
+    string seq = cadena.getSecuencia();
+    frecSecuencias[seq] += inc;
+    if (frecSecuencias[seq] == 0) frecSecuencias.erase(seq);
 
-// =============================================
-// ITERADORES
-// =============================================
-
-// Iterador al primer elemento
-IteradorLista ListaCadenasADN::begin() const {
-    IteradorLista it;
-    it.pt = head;  // Puede ser nullptr si la lista está vacía
-    return it;
-}
-
-// Iterador después del último elemento
-IteradorLista ListaCadenasADN::end() const {
-    IteradorLista it;
-    it.pt = nullptr;  // Siempre nullptr
-    return it;
-}
-
-// Iterador al último elemento
-IteradorLista ListaCadenasADN::rbegin() const {
-    IteradorLista it;
-    it.pt = tail;  // Puede ser nullptr si la lista está vacía
-    return it;
-}
-
-// Iterador antes del primer elemento
-IteradorLista ListaCadenasADN::rend() const {
-    IteradorLista it;
-    it.pt = nullptr;  // Siempre nullptr
-    return it;
-}
-
-// =============================================
-// OPERACIONES BÁSICAS
-// =============================================
-
-// Obtiene la cadena ADN apuntada por un iterador
-CadenaADN ListaCadenasADN::getCadenaADN(IteradorLista it) const {
-    if (it.pt != nullptr) {
-        return it.pt->getCadenaADN();
-    } else {
-        return CadenaADN();  // Cadena por defecto si el iterador no es válido
-    }
-}
-
-// Verifica si la lista está vacía
-bool ListaCadenasADN::esVacia() const {
-    return (head == nullptr);
-}
-
-// Inserta una cadena al principio de la lista
-void ListaCadenasADN::insertarInicio(const CadenaADN& cadena) {
-    // Crear nuevo nodo
-    NodoLista* nuevo = new NodoLista(nullptr, head, cadena);
-    
-    // Actualizar enlaces
-    if (head != nullptr) {
-        head->setAnterior(nuevo);
-    } else {
-        tail = nuevo;  // Lista estaba vacía
-    }
-    
-    head = nuevo;
-    numElementos++;
-}
-
-// Inserta una cadena al final de la lista
-void ListaCadenasADN::insertarFinal(const CadenaADN& cadena) {
-    // Crear nuevo nodo
-    NodoLista* nuevo = new NodoLista(tail, nullptr, cadena);
-    
-    // Actualizar enlaces
-    if (tail != nullptr) {
-        tail->setSiguiente(nuevo);
-    } else {
-        head = nuevo;  // Lista estaba vacía
-    }
-    
-    tail = nuevo;
-    numElementos++;
-}
-
-// Inserta una cadena antes de la posición del iterador
-bool ListaCadenasADN::insertar(IteradorLista it, const CadenaADN& cadena) {
-    if (it.pt == nullptr) {
-        return false;  // Iterador no válido
-    }
-    
-    if (it.pt == head) {
-        insertarInicio(cadena);  // Insertar al principio
-    } else {
-        // Insertar en medio
-        NodoLista* nuevo = new NodoLista(it.pt->getAnterior(), it.pt, cadena);
-        it.pt->getAnterior()->setSiguiente(nuevo);
-        it.pt->setAnterior(nuevo);
-        numElementos++;
-    }
-    
-    return true;
-}
-
-// Asigna una nueva cadena a la posición del iterador
-bool ListaCadenasADN::asignar(IteradorLista it, const CadenaADN& cadena) {
-    if (it.pt == nullptr) {
-        return false;  // Iterador no válido
-    }
-    
-    it.pt->setCadenaADN(cadena);
-    return true;
-}
-
-// =============================================
-// OPERACIONES DE BORRADO
-// =============================================
-
-// Borra la primera cadena de la lista
-bool ListaCadenasADN::borrarPrimera() {
-    if (head == nullptr) {
-        return false;  // Lista vacía
-    }
-    
-    NodoLista* aBorrar = head;
-    head = head->getSiguiente();
-    
-    if (head != nullptr) {
-        head->setAnterior(nullptr);
-    } else {
-        tail = nullptr;  // Lista quedó vacía
-    }
-    
-    delete aBorrar;
-    numElementos--;
-    return true;
-}
-
-// Borra la última cadena de la lista
-bool ListaCadenasADN::borrarUltima() {
-    if (tail == nullptr) {
-        return false;  // Lista vacía
-    }
-    
-    NodoLista* aBorrar = tail;
-    tail = tail->getAnterior();
-    
-    if (tail != nullptr) {
-        tail->setSiguiente(nullptr);
-    } else {
-        head = nullptr;  // Lista quedó vacía
-    }
-    
-    delete aBorrar;
-    numElementos--;
-    return true;
-}
-
-// Borra la cadena apuntada por el iterador
-bool ListaCadenasADN::borrar(IteradorLista& it) {
-    if (it.pt == nullptr) {
-        return false;  // Iterador no válido
-    }
-    
-    // Casos especiales: primer o último elemento
-    if (it.pt == head) {
-        borrarPrimera();
-    } else if (it.pt == tail) {
-        borrarUltima();
-    } else {
-        // Elemento en medio
-        NodoLista* anterior = it.pt->getAnterior();
-        NodoLista* siguiente = it.pt->getSiguiente();
-        
-        anterior->setSiguiente(siguiente);
-        siguiente->setAnterior(anterior);
-        
-        delete it.pt;
-        numElementos--;
-    }
-    
-    it.pt = nullptr;  // Como especificado, poner iterador a nullptr
-    return true;
-}
-
-// =============================================
-// OPERACIONES DE CONSULTA
-// =============================================
-
-// Devuelve el número de elementos en la lista
-int ListaCadenasADN::longitud() const {
-    return numElementos;
-}
-
-// Cuenta cuántas veces aparece una cadena en la lista
-int ListaCadenasADN::contar(const CadenaADN& cadena) const {
-    int contador = 0;
-    NodoLista* actual = head;
-    
-    while (actual != nullptr) {
-        // Compara solo las secuencias (no las descripciones)
-        if (actual->getCadenaADN().getSecuencia() == cadena.getSecuencia()) {
-            contador++;
+    vector<string> cods = cadena.obtenerCodones();
+    for (const string& c : cods) {
+        frecCodones[c] += inc;
+        if (inc > 0) {
+            codonesUnicos[c] = true;
+            mapaCodonSecuencias[c][seq] = true;
+        } else if (frecCodones[c] == 0) {
+            frecCodones.erase(c);
+            codonesUnicos.erase(c);
+            mapaCodonSecuencias.erase(c);
         }
-        actual = actual->getSiguiente();
     }
-    
-    return contador;
 }
 
-// =============================================
-// OPERACIONES AVANZADAS
-// =============================================
+IteradorLista ListaCadenasADN::begin() { IteradorLista it; it.iter = data.begin(); it.vacio = false; return it; }
+IteradorLista ListaCadenasADN::end() { IteradorLista it; it.iter = data.end(); it.vacio = false; return it; }
+IteradorLista ListaCadenasADN::rbegin() { IteradorLista it; if (data.empty()) it = end(); else { it.iter = --data.end(); it.vacio = false; } return it; }
+IteradorLista ListaCadenasADN::rend() { IteradorLista it; it.iter = --data.begin(); it.vacio = false; return it; }
 
-// Concatena esta lista con otra
-ListaCadenasADN ListaCadenasADN::concatenar(const ListaCadenasADN& otra) const {
-    ListaCadenasADN resultado;
-    
-    // Copiar elementos de esta lista
-    NodoLista* actual = head;
-    while (actual != nullptr) {
-        resultado.insertarFinal(actual->getCadenaADN());
-        actual = actual->getSiguiente();
-    }
-    
-    // Copiar elementos de la otra lista
-    actual = otra.head;
-    while (actual != nullptr) {
-        resultado.insertarFinal(actual->getCadenaADN());
-        actual = actual->getSiguiente();
-    }
-    
-    return resultado;
+CadenaADN ListaCadenasADN::getCadenaADN(IteradorLista it) { return (it.esVacio() || it.iter == data.end()) ? CadenaADN() : *it.iter; }
+bool ListaCadenasADN::esVacia() { return data.empty(); }
+void ListaCadenasADN::insertarInicio(const CadenaADN& c) { data.push_front(c); actualizarEstructuras(c, 1); }
+void ListaCadenasADN::insertarFinal(const CadenaADN& c) { data.push_back(c); actualizarEstructuras(c, 1); }
+
+bool ListaCadenasADN::insertar(IteradorLista it, const CadenaADN& c) {
+    if (it.esVacio()) return false;
+    data.insert(it.iter, c); actualizarEstructuras(c, 1); return true;
+}
+bool ListaCadenasADN::insertarDespues(IteradorLista it, const CadenaADN& c) {
+    if (it.esVacio() || it.iter == data.end()) return false;
+    auto next = it.iter; data.insert(++next, c); actualizarEstructuras(c, 1); return true;
+}
+bool ListaCadenasADN::asignar(IteradorLista it, const CadenaADN& c) {
+    if (it.esVacio() || it.iter == data.end()) return false;
+    actualizarEstructuras(*it.iter, -1); *it.iter = c; actualizarEstructuras(c, 1); return true;
+}
+bool ListaCadenasADN::borrarPrimera() { if (data.empty()) return false; actualizarEstructuras(data.front(), -1); data.pop_front(); return true; }
+bool ListaCadenasADN::borrarUltima() { if (data.empty()) return false; actualizarEstructuras(data.back(), -1); data.pop_back(); return true; }
+bool ListaCadenasADN::borrar(IteradorLista &it) {
+    if (it.esVacio() || it.iter == data.end()) return false;
+    actualizarEstructuras(*it.iter, -1); data.erase(it.iter); it = IteradorLista(); return true;
 }
 
-// Devuelve los elementos de esta lista que no están en la otra
-ListaCadenasADN ListaCadenasADN::diferencia(const ListaCadenasADN& otra) const {
-    ListaCadenasADN resultado;
-    NodoLista* actual = head;
-    
-    while (actual != nullptr) {
-        CadenaADN cadenaActual = actual->getCadenaADN();
-        bool encontrado = false;
-        
-        // Buscar si esta cadena está en la otra lista
-        NodoLista* actualOtra = otra.head;
-        while (actualOtra != nullptr && !encontrado) {
-            if (cadenaActual.getSecuencia() == actualOtra->getCadenaADN().getSecuencia()) {
-                encontrado = true;
-            }
-            actualOtra = actualOtra->getSiguiente();
-        }
-        
-        // Si no se encontró, añadir a resultado
-        if (!encontrado) {
-            resultado.insertarFinal(cadenaActual);
-        }
-        
-        actual = actual->getSiguiente();
-    }
-    
-    return resultado;
-}
+int ListaCadenasADN::longitud() { return data.size(); }
+int ListaCadenasADN::contar(const CadenaADN& c) { return frecSecuencias[c.getSecuencia()]; }
 
-// Concatena todas las secuencias en una sola cadena ADN
-CadenaADN ListaCadenasADN::concatenar() const {
-    if (esVacia()) {
-        return CadenaADN();  // Cadena por defecto si lista vacía
-    }
-    
-    string secuenciaCompleta;
-    NodoLista* actual = head;
-    
-    while (actual != nullptr) {
-        secuenciaCompleta += actual->getCadenaADN().getSecuencia();
-        actual = actual->getSiguiente();
-    }
-    
-    return CadenaADN(secuenciaCompleta, "");  // Descripción vacía como especificado
+ListaCadenasADN ListaCadenasADN::concatenar(ListaCadenasADN& otra) {
+    ListaCadenasADN res = *this;
+    for (auto& c : otra.data) res.insertarFinal(c);
+    return res;
 }
-
-// Convierte la lista a una cadena de texto
-string ListaCadenasADN::aCadena() const {
+ListaCadenasADN ListaCadenasADN::diferencia(ListaCadenasADN& otra) {
+    ListaCadenasADN res;
+    for (auto& c : data) if (otra.frecSecuencias.find(c.getSecuencia()) == otra.frecSecuencias.end()) res.insertarFinal(c);
+    return res;
+}
+CadenaADN ListaCadenasADN::concatenar() {
+    string s = ""; for (auto& c : data) s += c.getSecuencia();
+    return CadenaADN(s, "");
+}
+string ListaCadenasADN::aCadena() {
     stringstream ss;
-    NodoLista* actual = head;
-    
-    while (actual != nullptr) {
-        CadenaADN cadena = actual->getCadenaADN();
-        ss << cadena.getDescripcion() << ":" << cadena.getSecuencia();
-        
-        // Añadir salto de línea solo entre elementos
-        if (actual->getSiguiente() != nullptr) {
-            ss << "\n";
-        }
-        
-        actual = actual->getSiguiente();
+    for (auto it = data.begin(); it != data.end(); ++it) {
+        ss << it->getDescripcion() << ":" << it->getSecuencia();
+        if (next(it) != data.end()) ss << "\n";
     }
-    
     return ss.str();
+}
+
+int ListaCadenasADN::frecuenciaCodon(const string& c) { return frecCodones[c]; }
+int ListaCadenasADN::frecuenciaCadena(const CadenaADN& c) { return frecSecuencias[c.getSecuencia()]; }
+
+string ListaCadenasADN::listaCodones() {
+    string res = "";
+    for (auto const& [codon, val] : codonesUnicos) res += (res == "" ? "" : "\n") + codon;
+    return res;
+}
+string ListaCadenasADN::listaCadenasADN() {
+    map<string, bool> unicas; for (auto& c : data) unicas[c.getSecuencia()] = true;
+    string res = "";
+    for (auto const& [seq, val] : unicas) res += (res == "" ? "" : "\n") + seq;
+    return res;
+}
+string ListaCadenasADN::listaCadenasConCodon(const string& codon) {
+    string res = "";
+    if (mapaCodonSecuencias.count(codon))
+        for (auto const& [seq, val] : mapaCodonSecuencias[codon]) res += (res == "" ? "" : "\n") + seq;
+    return res;
+}
+void ListaCadenasADN::eliminaDuplicados() {
+    unordered_set<string> vistas;
+    for (auto it = data.begin(); it != data.end(); ) {
+        if (vistas.count(it->getSecuencia())) {
+            actualizarEstructuras(*it, -1);
+            it = data.erase(it);
+        } else { vistas.insert(it->getSecuencia()); ++it; }
+    }
 }

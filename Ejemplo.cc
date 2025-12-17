@@ -70,7 +70,7 @@ public:
 /* ========= Funciones auxiliares ========= */
 
 // Devuelve las secuencias de una lista en orden
-vector<string> obtenerSecuencias(const ListaCadenasADN &lista) {
+vector<string> obtenerSecuencias(ListaCadenasADN &lista) {
     vector<string> v;
     for (IteradorLista it = lista.begin(); it != lista.end(); it.step())
         v.push_back(lista.getCadenaADN(it).getSecuencia());
@@ -78,7 +78,7 @@ vector<string> obtenerSecuencias(const ListaCadenasADN &lista) {
 }
 
 // Devuelve las secuencias de una lista en orden inverso
-vector<string> obtenerSecuenciasInversa(const ListaCadenasADN &lista) {
+vector<string> obtenerSecuenciasInversa(ListaCadenasADN &lista) {
     vector<string> v;
     for (IteradorLista it = lista.rbegin(); it != lista.rend(); it.rstep())
         v.push_back(lista.getCadenaADN(it).getSecuencia());
@@ -147,6 +147,7 @@ int main() {
     test.expectEqualVec(obtenerSecuencias(lista2), {"ATG", "GATGAT", "GATATC", "AGTCAA"}, "Inserción intermedia correcta");
     test.expectEqualVec(obtenerSecuenciasInversa(lista2), { "AGTCAA", "GATATC","GATGAT",  "ATG"}, "Inserción intermedia correcta (orden inverso)");
 
+    
     // --- Contar() ---
     test.expectEqual(lista2.contar(c4), 1, "Contar() encuentra 1 coincidencia");
     lista2.insertarFinal(c4);
@@ -163,7 +164,8 @@ int main() {
     test.expectEqualVec(obtenerSecuencias(dif), {"ATG", "GATGAT", "GATGAT"}, "diferencia() devuelve elementos esperados (orden inverso)");
 
     // --- concatenar(Lista) ---
-    ListaCadenasADN concat = lista2.concatenar(lista3);
+    ListaCadenasADN concat;
+    concat = lista2.concatenar(lista3);
     test.expectEqualVec(obtenerSecuencias(concat),
                         {"ATG", "GATGAT", "GATATC", "AGTCAA", "GATGAT", "GATATC", "AGTCAA"},
                         "concatenar(Lista) mantiene orden");
@@ -200,8 +202,85 @@ int main() {
     while (!lista2.esVacia()) lista2.borrarPrimera();
     test.expectEqual(lista2.longitud(), 0, "Borrado completo de lista correcto");
 
+
+
+    /*  PRUEBAS QUE DEBEN SER ESCRITAS POR EL ALUMNADO  */
+
+    // --- InsertarDespues en posición intermedia ---
+    ListaCadenasADN lista10;
+    /*Inserta en la lista 10 las cadenas c1, c2 y c3,
+    de manera que la lista resultante sea [ATG, GATATC, AGTCAA] */
+    //Tu código aquí
+    
+    IteradorLista it10;
+    /* Haz que el iterador it10 apunte al segundo elemento de la lista (GATATC) */
+    //Tu código aquí
+
+    /* Llama a insertarDespues para insertar después de la posición
+    apuntada por it10 la cadena c4 */
+   //Tu código aquí
+
+    test.expectEqualVec(obtenerSecuencias(lista10), {"ATG", "GATATC", "GATGAT", "AGTCAA"}, "Inserción intermedia (después) correcta");
+    test.expectEqualVec(obtenerSecuenciasInversa(lista10), { "AGTCAA", "GATGAT", "GATATC", "ATG"}, "Inserción intermedia (después) correcta (orden inverso)");
+
+    // --- InsertarDespues en posición final ---
+    ListaCadenasADN lista11;
+    /*Inserta en la lista11 las cadenas c1, c2 y c3,
+    de manera que la lista resultante sea [ATG, GATATC, AGTCAA] */
+    //Tu código aquí
+    
+    IteradorLista it11;
+    /* Haz que el iterador it11 apunte al último elemento de la lista (AGTCAA) */
+   //Tu código aquí
+    
+    /* Llama a insertarDespues para insertar después de la posición
+    apuntada por it11 la cadena c4 */
+    //Tu código aquí
+
+    test.expectEqualVec(obtenerSecuencias(lista11), {"ATG", "GATATC", "AGTCAA", "GATGAT"}, "Inserción intermedia (después) correcta");
+    test.expectEqualVec(obtenerSecuenciasInversa(lista11), { "GATGAT", "AGTCAA", "GATATC", "ATG"}, "Inserción intermedia (después) correcta (orden inverso)");
+
+
+    // --- Cuentas de codones y cadenas ---
+    CadenaADN cc1("ATG", "Cadena 1");
+    CadenaADN cc2("GATATCATC", "Cadena 2");
+    CadenaADN cc3("GCATCG", "Borrar 1");
+    CadenaADN cc4("GCATCG", "Cadena 3");
+    CadenaADN cc5("CCTAGAATC", "Cadena 4");
+    CadenaADN cc6("GCATCG", "Otra cadena");
+    CadenaADN cc7("CCCATC", "Borrar 2");
+
+    ListaCadenasADN lista12;
+
+    /* Inserta en la lista11 las cadenas cc1, ...,cc7
+    de manera que la lista resultante sea:
+     [ATG, GATATCATC, GCATCG, GCATCG, CCTAGAATC, GCATCG, CCCATC] */
+    //Tu código aquí
+
+    /*
+    Borra las cadenas que ocupan las posiciones 3 y 7, de manera que la lista resultante sea:
+    [ATG, GATATCATC, GCATCG, CCTAGAATC, GCATCG]
+    */
+   //Tu código aquí
+  
+
+   test.expectEqualVec(obtenerSecuencias(lista12), {"ATG", "GATATCATC", "GCATCG", "CCTAGAATC", "GCATCG"}, "Inserción y borrado pre probar cuentas correcta");
+   test.expectEqualVec(obtenerSecuenciasInversa(lista12), {"GCATCG", "CCTAGAATC", "GCATCG", "GATATCATC",  "ATG" }, "Inserción y borrado pre probar cuentas (orden inverso)");
+
+   test.expectEqual( lista12.frecuenciaCodon("ATC"), 3, "frecuenciaCodon");
+   test.expectEqual( lista12.frecuenciaCadena(cc3), 2, "frecuenciaCadena");
+
+   test.expectEqual(lista12.listaCodones(),string("AGA\nATC\nATG\nCCT\nGAT\nGCA\nTCG"),"listaCodones");
+   test.expectEqual(lista12.listaCadenasADN(),string("ATG\nCCTAGAATC\nGATATCATC\nGCATCG"),"listaCadenasADN");
+
+   test.expectEqual(lista12.listaCadenasConCodon("ATC"),string("CCTAGAATC\nGATATCATC"),"listaCadenasConCodon");
+
+    // --- eliminaDuplicados ---
+    lista12.eliminaDuplicados();
+    test.expectEqualVec(obtenerSecuencias(lista12), {"ATG", "GATATCATC", "GCATCG", "CCTAGAATC"}, "eliminaDuplicados");
+   test.expectEqualVec(obtenerSecuenciasInversa(lista12), {"CCTAGAATC", "GCATCG", "GATATCATC",  "ATG" }, "eliminaDuplicados (orden inverso)");
+
     // --- Resultado global ---
     test.summary();
     return 0;
 }
-

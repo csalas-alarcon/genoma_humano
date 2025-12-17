@@ -4,6 +4,9 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <vector>
+
+
 using namespace std;
 
 class CadenaADN {
@@ -14,6 +17,8 @@ class CadenaADN {
     // Auxiliares
     bool validador(const string &, const string &) const;
     int contador(const string &) const;
+
+    vector<string> obtenerCodones() const;
 
     //Constructor por defecto
     CadenaADN();
